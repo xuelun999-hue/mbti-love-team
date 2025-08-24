@@ -14,10 +14,12 @@ export async function POST(request: NextRequest) {
     'Access-Control-Allow-Headers': 'Content-Type',
   }
 
+  let consultation: Consultation | null = null
+
   try {
     console.log('API被調用，處理諮詢請求...')
     
-    const consultation: Consultation = await request.json()
+    consultation = await request.json()
     console.log('收到的諮詢數據:', consultation)
     
     const { problem_text, target_mbti, user_mbti, consultation_type } = consultation
