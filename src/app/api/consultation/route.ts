@@ -98,24 +98,24 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('API Error:', error)
     
-    // 如果OpenAI失敗，嘗試使用備用方案
+    // 如果OpenAI失敗，使用內置備用方案
     try {
       console.log('OpenAI失敗，使用備用規則引擎...')
-      const fallbackResponse = await fetch(request.url.replace('/consultation', '/test-fallback'), {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          problem_text: consultation?.problem_text,
-          target_mbti: consultation?.target_mbti,
-          user_mbti: consultation?.user_mbti
-        })
-      })
+      const fallbackResponses = generateRuleBasedResponses(
+        consultation?.problem_text || '', 
+        consultation?.target_mbti, 
+        consultation?.user_mbti
+      )
       
-      if (fallbackResponse.ok) {
-        const fallbackData = await fallbackResponse.json()
-        console.log('備用方案成功')
-        return NextResponse.json(fallbackData, { headers })
-      }
+      console.log('備用方案生成了', fallbackResponses.length, '個回覆')
+      
+      return NextResponse.json({
+        consultation_id: consultationId,
+        responses: fallbackResponses,
+        consultation_type: consultation?.consultation_type || 'comprehensive',
+        note: '使用基於MBTI規則的回覆系統'
+      }, { headers })
+      
     } catch (fallbackError) {
       console.error('備用方案也失敗:', fallbackError)
     }
@@ -243,4 +243,45 @@ ${targetType ? `對象的MBTI類型：${targetType.name}(${targetType.id})` : ta
 3. 語氣溫暖友善，充滿同理心
 4. 控制在200-300字內
 5. 使用繁體中文回覆`
+}
+
+function generateRuleBasedResponses(problem: string, targetMbti?: string, userMbti?: string) {
+  const selectedTypes = ['INTJ', 'ENFP', 'ISFJ', 'ESTP']
+  
+  return selectedTypes.map(typeId => {
+    const mbtiType = getMBTIType(typeId)
+    if (!mbtiType) return null
+
+    // 基於MBTI特質生成建議
+    let advice = `作為${mbtiType.name}(${mbtiType.nickname})，我的建議是：\n\n`
+    
+    if (problem.includes('告白') || problem.includes('表白')) {
+      advice += mbtiType.id.includes('E') 
+        ? '大膽表達你的感受！真誠和直接往往最有效。選擇一個輕鬆的環境，自然地分享你的想法。'
+        : '先加深你們的情感連接。通過更多深入的對話了解彼此，當時機成熟時再表達心意。'
+    } else if (problem.includes('冷淡') || problem.includes('不理') || problem.includes('少主動')) {
+      advice += mbtiType.id.includes('F') 
+        ? '試著站在對方角度思考，可能有工作壓力或其他困擾。給予理解和空間，但也要表達你的關心。'
+        : '直接但溫和地溝通。問問是否有什麼困擾，或者你是否做了什麼讓對方不舒服的事。'
+    } else {
+      advice += `根據我的${mbtiType.love_style}，建議你${mbtiType.relationship_tips[0]}。`
+    }
+    
+    advice += `\n\n記住：${mbtiType.relationship_tips.slice(0, 2).join('，')}。`
+    
+    if (targetMbti && targetMbti !== 'unknown') {
+      const targetType = getMBTIType(targetMbti)
+      if (targetType) {
+        advice += `\n\n針對${targetType.name}類型的對象，特別注意：${targetType.relationship_tips[0]}。`
+      }
+    }
+
+    return {
+      consultation_id: crypto.randomUUID(),
+      mbti_type: typeId,
+      response_text: advice,
+      response_type: 'comprehensive',
+      ai_model: 'rule-based-engine'
+    }
+  }).filter(Boolean) as Response[]
 }
