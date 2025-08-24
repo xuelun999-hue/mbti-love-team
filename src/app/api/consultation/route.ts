@@ -22,6 +22,10 @@ export async function POST(request: NextRequest) {
     consultation = await request.json()
     console.log('收到的諮詢數據:', consultation)
     
+    if (!consultation) {
+      return NextResponse.json({ error: '無效的請求數據' }, { status: 400, headers })
+    }
+
     const { problem_text, target_mbti, user_mbti, consultation_type } = consultation
 
     if (!problem_text) {
