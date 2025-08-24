@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
-import { openai } from '@ai-sdk/openai'
 import { generateText } from 'ai'
+import { openai } from '@/lib/openai'
 
 export async function GET() {
   try {
