@@ -81,7 +81,10 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('API Error:', error)
     return NextResponse.json(
-      { error: '內部服務器錯誤' },
+      { 
+        error: '內部服務器錯誤',
+        details: error instanceof Error ? error.message : 'Unknown error'
+      },
       { status: 500 }
     )
   }
@@ -93,10 +96,21 @@ async function generateSpecificResponse(
   userMbti?: string,
   consultationId?: string
 ): Promise<Response> {
-  const mbtiType = targetMbti ? getMBTIType(targetMbti) : userMbti ? getMBTIType(userMbti) : null
+  // 處理未知MBTI的情況
+  const mbtiType = targetMbti && targetMbti !== 'unknown' ? getMBTIType(targetMbti) 
+                 : userMbti && userMbti !== 'unknown' ? getMBTIType(userMbti) 
+                 : null
   
   if (!mbtiType) {
-    throw new Error('無法確定要諮詢的MBTI類型')
+    // 如果沒有具體MBTI類型，使用綜合建議模式
+    const responses = await generateComprehensiveResponse(problem, targetMbti, userMbti, consultationId)
+    return responses[0] || {
+      consultation_id: consultationId || '',
+      mbti_type: 'comprehensive',
+      response_text: '請提供更多信息以獲得更精準的建議。',
+      response_type: 'specific',
+      ai_model: 'gpt-3.5-turbo'
+    }
   }
 
   const prompt = createMBTIPrompt(problem, mbtiType.id, targetMbti, userMbti)
@@ -161,8 +175,8 @@ function createMBTIPrompt(
   const mbtiType = getMBTIType(respondingMbti)
   if (!mbtiType) throw new Error(`Unknown MBTI type: ${respondingMbti}`)
 
-  const targetType = targetMbti ? getMBTIType(targetMbti) : null
-  const userType = userMbti ? getMBTIType(userMbti) : null
+  const targetType = targetMbti && targetMbti !== 'unknown' ? getMBTIType(targetMbti) : null
+  const userType = userMbti && userMbti !== 'unknown' ? getMBTIType(userMbti) : null
 
   return `你是一位${mbtiType.name}(${mbtiType.id})性格的戀愛諮詢師，具有以下特質：
 - 性格描述：${mbtiType.description}
@@ -173,8 +187,8 @@ function createMBTIPrompt(
 用戶的情感問題：
 ${problem}
 
-${userType ? `用戶的MBTI類型：${userType.name}(${userType.id})` : ''}
-${targetType ? `對象的MBTI類型：${targetType.name}(${targetType.id})` : ''}
+${userType ? `用戶的MBTI類型：${userType.name}(${userType.id})` : userMbti === 'unknown' ? '用戶的MBTI類型：未知' : ''}
+${targetType ? `對象的MBTI類型：${targetType.name}(${targetType.id})` : targetMbti === 'unknown' ? '對象的MBTI類型：未知' : ''}
 
 請以${mbtiType.nickname}的身份，根據你的性格特質和價值觀，給出溫暖、實用且具體的戀愛建議。回覆應該：
 1. 體現你的性格特點和思維方式

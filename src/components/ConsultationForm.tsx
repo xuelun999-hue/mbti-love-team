@@ -68,6 +68,7 @@ export default function ConsultationForm({ onSubmit, isLoading }: ConsultationFo
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             >
               <option value="">請選擇...</option>
+              <option value="unknown">未知</option>
               {mbtiTypes.map((type) => (
                 <option key={type.id} value={type.id}>
                   {type.id} - {type.name}
@@ -87,6 +88,7 @@ export default function ConsultationForm({ onSubmit, isLoading }: ConsultationFo
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             >
               <option value="">請選擇...</option>
+              <option value="unknown">未知</option>
               {mbtiTypes.map((type) => (
                 <option key={type.id} value={type.id}>
                   {type.id} - {type.name}
