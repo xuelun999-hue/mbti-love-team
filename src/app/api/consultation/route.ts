@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { openai } from '@ai-sdk/openai'
 import { generateText, streamText } from 'ai'
-import { openai } from '@/lib/openai'
 import { getMBTIType, getAllMBTITypes } from '@/lib/mbti-data'
 import { supabase } from '@/lib/supabase'
 import { Consultation, Response } from '@/types'
+import '@/lib/clean-env'
 
 export async function POST(request: NextRequest) {
   // 添加 CORS 頭
