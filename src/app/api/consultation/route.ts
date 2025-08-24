@@ -102,7 +102,7 @@ async function generateSpecificResponse(
   const prompt = createMBTIPrompt(problem, mbtiType.id, targetMbti, userMbti)
 
   const { text } = await generateText({
-    model: openai('gpt-4o'),
+    model: openai('gpt-3.5-turbo'),
     prompt,
     temperature: 0.7,
     maxTokens: 1000,
@@ -131,7 +131,7 @@ async function generateComprehensiveResponse(
 
     try {
       const { text } = await generateText({
-        model: openai('gpt-4o'),
+        model: openai('gpt-3.5-turbo'),
         prompt,
         temperature: 0.7,
         maxTokens: 800,
@@ -142,7 +142,7 @@ async function generateComprehensiveResponse(
         mbti_type: typeId,
         response_text: text,
         response_type: 'comprehensive',
-        ai_model: 'gpt-4o'
+        ai_model: 'gpt-3.5-turbo'
       })
     } catch (error) {
       console.error(`Error generating response for ${typeId}:`, error)
