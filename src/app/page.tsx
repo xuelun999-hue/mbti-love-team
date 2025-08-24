@@ -40,6 +40,8 @@ export default function Home() {
       }
 
       const data: ConsultationResult = await response.json()
+      console.log('API返回的數據:', data)
+      console.log('responses數量:', data.responses?.length)
       setResult(data)
     } catch (error) {
       console.error('Consultation error:', error)

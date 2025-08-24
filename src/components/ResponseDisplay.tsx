@@ -9,8 +9,19 @@ interface ResponseDisplayProps {
 }
 
 export default function ResponseDisplay({ responses, consultationType }: ResponseDisplayProps) {
-  if (responses.length === 0) {
-    return null
+  console.log('ResponseDisplay收到的props:', { responses, consultationType })
+  
+  if (!responses || responses.length === 0) {
+    return (
+      <div className="max-w-2xl mx-auto mt-8">
+        <div className="bg-yellow-50 border border-yellow-200 rounded-md p-4">
+          <h3 className="text-lg font-medium text-yellow-800">正在處理中...</h3>
+          <p className="text-yellow-700 mt-2">
+            未收到回覆數據。responses: {JSON.stringify(responses)}
+          </p>
+        </div>
+      </div>
+    )
   }
 
   return (
