@@ -91,6 +91,28 @@ export async function POST(request: NextRequest) {
 
     console.log('準備返回響應，responses數量:', responses.length)
     
+    // 如果沒有responses，強制使用備用方案
+    if (responses.length === 0) {
+      console.log('沒有responses，強制使用備用方案...')
+      const fallbackResponses = generateRuleBasedResponses(
+        problem_text, 
+        target_mbti, 
+        user_mbti
+      )
+      
+      console.log('備用方案生成了', fallbackResponses.length, '個回覆')
+      
+      const result = {
+        consultation_id: consultationId,
+        responses: fallbackResponses,
+        consultation_type,
+        note: '使用基於MBTI規則的回覆系統'
+      }
+      
+      console.log('返回備用結果:', result)
+      return NextResponse.json(result, { headers })
+    }
+    
     const result = {
       consultation_id: consultationId,
       responses,
