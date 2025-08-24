@@ -15,6 +15,7 @@ export async function POST(request: NextRequest) {
   }
 
   let consultation: Consultation | null = null
+  let consultationId = crypto.randomUUID()
 
   try {
     console.log('API被調用，處理諮詢請求...')
@@ -32,7 +33,6 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: '請提供問題描述' }, { status: 400, headers })
     }
 
-    const consultationId = crypto.randomUUID()
     let responses: Response[] = []
 
     if (consultation_type === 'specific') {
