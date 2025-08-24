@@ -143,7 +143,7 @@ async function generateSpecificResponse(
     mbti_type: mbtiType.id,
     response_text: text,
     response_type: 'specific',
-    ai_model: 'gpt-4o'
+    ai_model: 'gpt-3.5-turbo'
   }
 }
 
@@ -153,10 +153,13 @@ async function generateComprehensiveResponse(
   userMbti?: string,
   consultationId?: string
 ): Promise<Response[]> {
+  console.log('開始生成綜合回覆...')
+  
   const selectedTypes = ['INTJ', 'ENFP', 'ISFJ', 'ESTP']
   const responses: Response[] = []
 
   for (const typeId of selectedTypes) {
+    console.log(`正在生成 ${typeId} 的回覆...`)
     const prompt = createMBTIPrompt(problem, typeId, targetMbti, userMbti)
 
     try {
@@ -166,6 +169,8 @@ async function generateComprehensiveResponse(
         temperature: 0.7,
         maxTokens: 800,
       })
+      
+      console.log(`${typeId} 生成成功，長度: ${text.length}`)
 
       responses.push({
         consultation_id: consultationId || '',
@@ -179,6 +184,7 @@ async function generateComprehensiveResponse(
     }
   }
 
+  console.log(`綜合回覆生成完成，總數: ${responses.length}`)
   return responses
 }
 
