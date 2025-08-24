@@ -23,7 +23,7 @@ export default function Home() {
     try {
       console.log('發送諮詢請求:', consultation)
       
-      const response = await fetch('/api/consultation', {
+      const response = await fetch('/api/consultation-deepseek', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
