@@ -97,10 +97,34 @@ export async function POST(request: NextRequest) {
 
   } catch (error) {
     console.error('API Error:', error)
+    
+    // 如果OpenAI失敗，嘗試使用備用方案
+    try {
+      console.log('OpenAI失敗，使用備用規則引擎...')
+      const fallbackResponse = await fetch(request.url.replace('/consultation', '/test-fallback'), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          problem_text: consultation?.problem_text,
+          target_mbti: consultation?.target_mbti,
+          user_mbti: consultation?.user_mbti
+        })
+      })
+      
+      if (fallbackResponse.ok) {
+        const fallbackData = await fallbackResponse.json()
+        console.log('備用方案成功')
+        return NextResponse.json(fallbackData, { headers })
+      }
+    } catch (fallbackError) {
+      console.error('備用方案也失敗:', fallbackError)
+    }
+    
     return NextResponse.json(
       { 
-        error: '內部服務器錯誤',
-        details: error instanceof Error ? error.message : 'Unknown error'
+        error: '服務暫時不可用，請稍後再試',
+        details: error instanceof Error ? error.message : 'Unknown error',
+        suggestion: '請檢查API密鑰配置或嘗試其他AI服務'
       },
       { status: 500, headers }
     )
