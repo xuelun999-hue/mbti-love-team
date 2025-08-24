@@ -21,6 +21,8 @@ export default function Home() {
     setError(null)
 
     try {
+      console.log('發送諮詢請求:', consultation)
+      
       const response = await fetch('/api/consultation', {
         method: 'POST',
         headers: {
@@ -29,9 +31,12 @@ export default function Home() {
         body: JSON.stringify(consultation),
       })
 
+      console.log('API回應狀態:', response.status)
+      
       if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.error || '請求失敗')
+        const errorData = await response.json().catch(() => ({ error: `HTTP ${response.status}` }))
+        console.error('API錯誤:', errorData)
+        throw new Error(errorData.error || `請求失敗 (${response.status})`)
       }
 
       const data: ConsultationResult = await response.json()
