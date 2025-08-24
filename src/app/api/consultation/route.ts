@@ -6,13 +6,23 @@ import { supabase } from '@/lib/supabase'
 import { Consultation, Response } from '@/types'
 
 export async function POST(request: NextRequest) {
+  // 添加 CORS 頭
+  const headers = {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Methods': 'POST',
+    'Access-Control-Allow-Headers': 'Content-Type',
+  }
+
   try {
+    console.log('API被調用，處理諮詢請求...')
+    
     const consultation: Consultation = await request.json()
+    console.log('收到的諮詢數據:', consultation)
     
     const { problem_text, target_mbti, user_mbti, consultation_type } = consultation
 
     if (!problem_text) {
-      return NextResponse.json({ error: '請提供問題描述' }, { status: 400 })
+      return NextResponse.json({ error: '請提供問題描述' }, { status: 400, headers })
     }
 
     const consultationId = crypto.randomUUID()
@@ -72,11 +82,17 @@ export async function POST(request: NextRequest) {
       console.error('Database error:', dbError)
     }
 
-    return NextResponse.json({
+    console.log('準備返回響應，responses數量:', responses.length)
+    
+    const result = {
       consultation_id: consultationId,
       responses,
       consultation_type
-    })
+    }
+    
+    console.log('返回結果:', result)
+    
+    return NextResponse.json(result, { headers })
 
   } catch (error) {
     console.error('API Error:', error)
@@ -85,7 +101,7 @@ export async function POST(request: NextRequest) {
         error: '內部服務器錯誤',
         details: error instanceof Error ? error.message : 'Unknown error'
       },
-      { status: 500 }
+      { status: 500, headers }
     )
   }
 }
