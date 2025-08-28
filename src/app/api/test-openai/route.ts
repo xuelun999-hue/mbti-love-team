@@ -3,12 +3,17 @@ import { anthropic } from '@ai-sdk/anthropic'
 import { generateText } from 'ai'
 import '@/lib/clean-env'
 
+const anthropicClient = anthropic({
+  apiKey: process.env.ANTHROPIC_API_KEY!,
+  baseURL: 'https://gateway.ai.cloudflare.com/v1/cf-ai-gateway/anthropic',
+})
+
 export async function GET() {
   try {
     console.log('測試Anthropic連接...')
     
     const { text } = await generateText({
-      model: anthropic('claude-3-haiku-20240307'),
+      model: anthropicClient('claude-3-haiku-20240307'),
       prompt: '請簡短回覆：你好',
     })
 

@@ -6,6 +6,11 @@ import { supabase } from '@/lib/supabase'
 import { Consultation, Response } from '@/types'
 import '@/lib/clean-env'
 
+const anthropicClient = anthropic({
+  apiKey: process.env.ANTHROPIC_API_KEY!,
+  baseURL: 'https://gateway.ai.cloudflare.com/v1/cf-ai-gateway/anthropic',
+})
+
 
 export async function POST(request: NextRequest) {
   // 添加 CORS 頭
@@ -186,7 +191,7 @@ async function generateSpecificResponse(
   const prompt = createMBTIPrompt(problem, mbtiType.id, targetMbti, userMbti)
 
   const { text } = await generateText({
-    model: anthropic('claude-3-haiku-20240307'),
+    model: anthropicClient('claude-3-haiku-20240307'),
     prompt,
     temperature: 0.7,
   })
@@ -217,7 +222,7 @@ async function generateComprehensiveResponse(
 
     try {
       const { text } = await generateText({
-        model: anthropic('claude-3-haiku-20240307'),
+        model: anthropicClient('claude-3-haiku-20240307'),
         prompt,
         temperature: 0.7,
       })
