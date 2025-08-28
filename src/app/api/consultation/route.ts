@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { openai } from '@ai-sdk/openai'
+import { openai, createOpenAI } from '@ai-sdk/openai'
 import { generateText, streamText } from 'ai'
 import { getMBTIType, getAllMBTITypes } from '@/lib/mbti-data'
 import { supabase } from '@/lib/supabase'
 import { Consultation, Response } from '@/types'
 import '@/lib/clean-env'
 
-const openaiClient = openai({
+const gatewayClient = createOpenAI({
   apiKey: process.env.AI_GATEWAY_API_KEY!,
   baseURL: 'https://ai-gateway.vercel.sh/v1',
 })
@@ -191,7 +191,7 @@ async function generateSpecificResponse(
   const prompt = createMBTIPrompt(problem, mbtiType.id, targetMbti, userMbti)
 
   const { text } = await generateText({
-    model: openaiClient('openai/gpt-3.5-turbo'),
+    model: gatewayClient('gpt-3.5-turbo'),
     prompt,
     temperature: 0.7,
   })
@@ -222,7 +222,7 @@ async function generateComprehensiveResponse(
 
     try {
       const { text } = await generateText({
-        model: openaiClient('openai/gpt-3.5-turbo'),
+        model: gatewayClient('gpt-3.5-turbo'),
         prompt,
         temperature: 0.7,
       })
