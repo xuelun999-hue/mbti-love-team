@@ -1,11 +1,11 @@
 import { NextResponse } from 'next/server'
-import { anthropic } from '@ai-sdk/anthropic'
+import { openai } from '@ai-sdk/openai'
 import { generateText } from 'ai'
 import '@/lib/clean-env'
 
-const anthropicClient = anthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY!,
-  baseURL: 'https://gateway.ai.cloudflare.com/v1/cf-ai-gateway/anthropic',
+const openaiClient = openai({
+  apiKey: process.env.AI_GATEWAY_API_KEY!,
+  baseURL: 'https://ai-gateway.vercel.sh/v1',
 })
 
 export async function GET() {
@@ -13,7 +13,7 @@ export async function GET() {
     console.log('測試Anthropic連接...')
     
     const { text } = await generateText({
-      model: anthropicClient('claude-3-haiku-20240307'),
+      model: openaiClient('openai/gpt-3.5-turbo'),
       prompt: '請簡短回覆：你好',
     })
 

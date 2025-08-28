@@ -1,14 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { anthropic } from '@ai-sdk/anthropic'
+import { openai } from '@ai-sdk/openai'
 import { generateText, streamText } from 'ai'
 import { getMBTIType, getAllMBTITypes } from '@/lib/mbti-data'
 import { supabase } from '@/lib/supabase'
 import { Consultation, Response } from '@/types'
 import '@/lib/clean-env'
 
-const anthropicClient = anthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY!,
-  baseURL: 'https://gateway.ai.cloudflare.com/v1/cf-ai-gateway/anthropic',
+const openaiClient = openai({
+  apiKey: process.env.AI_GATEWAY_API_KEY!,
+  baseURL: 'https://ai-gateway.vercel.sh/v1',
 })
 
 
@@ -191,7 +191,7 @@ async function generateSpecificResponse(
   const prompt = createMBTIPrompt(problem, mbtiType.id, targetMbti, userMbti)
 
   const { text } = await generateText({
-    model: anthropicClient('claude-3-haiku-20240307'),
+    model: openaiClient('openai/gpt-3.5-turbo'),
     prompt,
     temperature: 0.7,
   })
@@ -222,7 +222,7 @@ async function generateComprehensiveResponse(
 
     try {
       const { text } = await generateText({
-        model: anthropicClient('claude-3-haiku-20240307'),
+        model: openaiClient('openai/gpt-3.5-turbo'),
         prompt,
         temperature: 0.7,
       })
@@ -234,7 +234,7 @@ async function generateComprehensiveResponse(
         mbti_type: typeId,
         response_text: text,
         response_type: 'comprehensive',
-        ai_model: 'claude-3-haiku-20240307'
+        ai_model: 'openai/gpt-3.5-turbo'
       })
     } catch (error) {
       console.error(`Error generating response for ${typeId}:`, error)
