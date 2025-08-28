@@ -5,7 +5,7 @@ export function cleanApiKey(key: string | undefined): string {
 }
 
 // 設置清理後的環境變量
-const originalKey = process.env.OPENAI_API_KEY
+const originalKey = process.env.ANTHROPIC_API_KEY
 if (originalKey) {
   const cleanKey = cleanApiKey(originalKey)
   console.log('清理API Key:', { 
@@ -13,5 +13,5 @@ if (originalKey) {
     清理後長度: cleanKey.length,
     前10字符: cleanKey.substring(0, 10)
   })
-  process.env.OPENAI_API_KEY = cleanKey
+  process.env.ANTHROPIC_API_KEY = cleanKey
 }

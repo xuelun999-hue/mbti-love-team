@@ -1,10 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { openai } from '@ai-sdk/openai'
+import { anthropic } from '@ai-sdk/anthropic'
 import { generateText, streamText } from 'ai'
 import { getMBTIType, getAllMBTITypes } from '@/lib/mbti-data'
 import { supabase } from '@/lib/supabase'
 import { Consultation, Response } from '@/types'
 import '@/lib/clean-env'
+
 
 export async function POST(request: NextRequest) {
   // 添加 CORS 頭
@@ -185,10 +186,9 @@ async function generateSpecificResponse(
   const prompt = createMBTIPrompt(problem, mbtiType.id, targetMbti, userMbti)
 
   const { text } = await generateText({
-    model: openai('gpt-3.5-turbo'),
+    model: anthropic('claude-3-haiku-20240307'),
     prompt,
     temperature: 0.7,
-    maxTokens: 1000,
   })
 
   return {
@@ -217,10 +217,9 @@ async function generateComprehensiveResponse(
 
     try {
       const { text } = await generateText({
-        model: openai('gpt-3.5-turbo'),
+        model: anthropic('claude-3-haiku-20240307'),
         prompt,
         temperature: 0.7,
-        maxTokens: 800,
       })
       
       console.log(`${typeId} 生成成功，長度: ${text.length}`)
@@ -230,7 +229,7 @@ async function generateComprehensiveResponse(
         mbti_type: typeId,
         response_text: text,
         response_type: 'comprehensive',
-        ai_model: 'gpt-3.5-turbo'
+        ai_model: 'claude-3-haiku-20240307'
       })
     } catch (error) {
       console.error(`Error generating response for ${typeId}:`, error)
